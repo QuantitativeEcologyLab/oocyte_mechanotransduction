@@ -104,7 +104,7 @@ original_rownames_emb <- rownames(v_emb$E)
 rownames(v_emb$E) <- toupper(rownames(v_emb$E))
 
 #Map gene sets to indices in the expression matrix
-gene_sets_upper <- lapply(gene_groups_emb, toupper)
+gene_sets_upper <- lapply(mechanotransduction_gene_sets, toupper)
 gene_sets_idx_emb <- ids2indices(gene_sets_upper,
  rownames(v_emb$E),
  remove.empty = TRUE)
@@ -207,7 +207,7 @@ FIG_4B <-
 
 ggsave(FIG_4B,
  file = "figures/figure_4b_PCA_embryo.png",
- width = 6, height = 5,
+ width = 9, height = 4.7,
  dpi = 600, bg = "transparent")
 
 
@@ -216,7 +216,7 @@ ggsave(FIG_4B,
 #---------------
 
 #Select top 50 mechanotransduction genes by adjusted p-value then fold change
-all_genes_emb <- toupper(unique(unlist(gene_groups_emb)))
+all_genes_emb <- toupper(unique(unlist(mechanotransduction_gene_sets)))
 res_emb_mechano <- res_emb[rownames(res_emb) %in% all_genes_emb, ]
 top50_mechano <- rownames(res_emb_mechano)[
  order(res_emb_mechano$adj.P.Val, -abs(res_emb_mechano$logFC), na.last = NA)
@@ -271,3 +271,37 @@ pheatmap(roast_mat,
  fontsize_col = 11,
  filename = "figures/figure_4d_ROAST_heatmap_embryo.png",
  width = 4.5, height = 9)
+
+
+
+#---------------
+# Figure S8 - ROAST heatmap of mechanotransduction pathways in embryos
+#---------------
+
+#Build signed proportion matrix sorted by value
+roast_emb_sorted <- roast_emb[order(roast_emb$SignedProp, decreasing = TRUE), ]
+roast_mat <- matrix(roast_emb_sorted$SignedProp, ncol = 1)
+rownames(roast_mat) <- rownames(roast_emb_sorted)
+colnames(roast_mat) <- "Dynamic vs 2D"
+
+#Build number annotation matrix with significance symbols
+num_mat <- matrix(
+  paste0(sprintf("%.2f", roast_mat),
+         ifelse(roast_emb_sorted$PValue < 0.05, " *",
+                ifelse(roast_emb_sorted$PValue < 0.09, " .", ""))),
+  ncol = 1,
+  dimnames = list(rownames(roast_mat), colnames(roast_mat))
+)
+
+pheatmap(roast_mat,
+         color = scico(1000, palette = "vik", alpha = 0.8),
+         breaks = seq(-1, 1, length.out = 1001),
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         display_numbers = num_mat,
+         number_color = "black",
+         border_color = NA,
+         fontsize_row = 10,
+         fontsize_col = 11,
+         filename = "figures/figure_S8_ROAST_heatmap_embryo_uncorrected_significance.png",
+         width = 4.5, height = 9)

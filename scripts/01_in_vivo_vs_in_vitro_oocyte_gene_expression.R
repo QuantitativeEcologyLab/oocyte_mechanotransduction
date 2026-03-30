@@ -81,12 +81,12 @@ design_MII <- model.matrix(~collection_MII)
 
 #Conduct pathway analyses
 RES_MII <- list()
-for (i in seq_along(gene_groups_emb)) {
- gene_index <- which(gene_names %in% gene_groups_emb[[i]])
+for (i in seq_along(mechanotransduction_gene_sets)) {
+ gene_index <- which(gene_names %in% mechanotransduction_gene_sets[[i]])
  ROAST_MII <- mroast(cow_MII, gene_index, design_MII, contrast = 2)
  ROAST_MII$Stage <- "MII"
  ROAST_MII$Collection <- "vitro - vivo"
- ROAST_MII$Pathway <- names(gene_groups_emb)[i]
+ ROAST_MII$Pathway <- names(mechanotransduction_gene_sets)[i]
  ROAST_MII$Species <- "Bovine"
  RES_MII[[length(RES_MII) + 1]] <- ROAST_MII
 }
@@ -116,12 +116,12 @@ design_BL <- model.matrix(~collection_BL)
 
 #Conduct pathway analyses
 RES_BL <- list()
-for (i in seq_along(gene_groups_emb)) {
- gene_index <- which(gene_names %in% gene_groups_emb[[i]])
+for (i in seq_along(mechanotransduction_gene_sets)) {
+ gene_index <- which(gene_names %in% mechanotransduction_gene_sets[[i]])
  ROAST_BL <- mroast(cow_BL, gene_index, design_BL, contrast = 2)
  ROAST_BL$Stage <- "BL"
  ROAST_BL$Collection <- "vitro - vivo"
- ROAST_BL$Pathway <- names(gene_groups_emb)[i]
+ ROAST_BL$Pathway <- names(mechanotransduction_gene_sets)[i]
  ROAST_BL$Species <- "Bovine"
  RES_BL[[length(RES_BL) + 1]] <- ROAST_BL
 }
@@ -377,7 +377,7 @@ for (grp_name in names(gene_groups_pathways)) {
 
 
 #---------------
-# Supplementary Figure 6 - ROAST heatmap of mechanotransduction pathways
+# Supplementary Figure S7 - ROAST heatmap of mechanotransduction pathways
 #---------------
 
 #Build signed proportion matrix sorted by value
@@ -406,5 +406,5 @@ pheatmap(roast_mat_BL,
  fontsize_row = 10,
  fontsize_col = 11,
  fontsize_number = 12,
- filename = "figures/figure_s6_ROAST_heatmap_BL_vivo_vs_vitro.png",
+ filename = "figures/figure_s7_ROAST_heatmap_BL_vivo_vs_vitro.png",
  width = 4.5, height = 9)

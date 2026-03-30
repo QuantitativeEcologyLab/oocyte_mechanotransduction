@@ -53,6 +53,11 @@ res_2D_vs_Dyn <- results(dds, contrast = c("condition", "twoD", "dynamic"))
 res_2D_vs_St <- results(dds, contrast = c("condition", "twoD", "static"))
 res_Dyn_vs_St <- results(dds, contrast = c("condition", "dynamic", "static"))
 
+#Save the results
+write.csv(res_2D_vs_Dyn, file = "results/oocyte_DEG_Dynvs2D.csv", row.names = TRUE)
+write.csv(res_2D_vs_St, file = "results/oocyte_DEG_Staticvs2D.csv", row.names = TRUE)
+write.csv(res_Dyn_vs_St, file = "results/oocyte_DEG_DynvsStatic.csv", row.names = TRUE)
+
 #Setting as 0.06 to identify genes with marginal significance
 alpha <- 0.06
 sig_2D_vs_Dyn <- res_2D_vs_Dyn[which(res_2D_vs_Dyn$padj < alpha), ]
@@ -74,7 +79,7 @@ sig_Dyn_vs_St_df <- add_genename(sig_Dyn_vs_St, oocyte_expression)
 #-------------------------------------------------------------
 
 #Build count matrix from oocyte_expression
-all_genes <- unique(unlist(gene_groups_emb))
+all_genes <- unique(unlist(mechanotransduction_gene_sets))
 all_gene_data <- oocyte_expression[oocyte_expression$gene_name %in% all_genes, ]
 
 #Handle duplicate gene names by keeping highest mean expression
@@ -104,14 +109,14 @@ dge_roast <- DGEList(counts = counts_mat)
 dge_roast <- calcNormFactors(dge_roast)
 v_roast <- voom(dge_roast, design_roast)
 
-gene_sets_upper <- lapply(gene_groups_emb, toupper)
+gene_sets_upper <- lapply(mechanotransduction_gene_sets, toupper)
 
 #ROAST function
-run_oocyte_roast <- function(group_a, group_b, v, design, gene_groups_emb, outfile) {
+run_oocyte_roast <- function(group_a, group_b, v, design, mechanotransduction_gene_sets, outfile) {
  cv <- numeric(ncol(design))
  cv[which(colnames(design) == group_a)] <- 1
  cv[which(colnames(design) == group_b)] <- -1
- res <- mroast(v$E, index = gene_groups_emb, design = design, contrast = cv)
+ res <- mroast(v$E, index = mechanotransduction_gene_sets, design = design, contrast = cv)
  write.csv(res, outfile, row.names = TRUE)
  res
 }
@@ -370,7 +375,7 @@ num_mat_3b <- matrix(
 pheatmap(heatmap_mat,
  color = scico(1000, palette = "vik", alpha = 0.8),
  breaks = seq(-1, 1, length.out = 1001),
- cluster_rows = TRUE,
+ cluster_rows = FALSE,
  cluster_cols = FALSE,
  fontsize_row = 8,
  fontsize_col = 10,
@@ -378,3 +383,70 @@ pheatmap(heatmap_mat,
  display_numbers = num_mat_3b,
  number_color = "black",
  filename = "figures/figure_3b_ROAST_Heatmap.png")
+
+
+
+
+#-------------------------------------------------------------
+#Figure S6 - Heatmap with uncorrected p-values for discussion
+#-------------------------------------------------------------
+
+
+# Read and format ROAST results
+r1 <- read_roast("results/ROAST_Dynvs2D.csv")
+r2 <- read_roast("results/ROAST_2DvsSt.csv")
+r3 <- read_roast("results/ROAST_DynvsSt.csv")
+
+colnames(r1) <- "Prop_Dyn_vs_2D"
+colnames(r2) <- "Prop_2D_vs_St"
+colnames(r3) <- "Prop_Dyn_vs_St"
+
+#Read FDR.Mixed values for significance annotation
+fdr1 <- read.csv("results/ROAST_Dynvs2D.csv", row.names = 1)["PValue"]
+fdr2 <- read.csv("results/ROAST_2DvsSt.csv", row.names = 1)["PValue"]
+fdr3 <- read.csv("results/ROAST_DynvsSt.csv", row.names = 1)["PValue"]
+
+colnames(fdr1) <- "FDR_Dyn_vs_2D"
+colnames(fdr2) <- "FDR_2D_vs_St"
+colnames(fdr3) <- "FDR_Dyn_vs_St"
+#Merge proportion and FDR matrices
+merged_roast <- merge(merge(r1, r2, by = "row.names"), r3, by.x = "Row.names", by.y = "row.names")
+rownames(merged_roast) <- merged_roast$Row.names
+merged_roast <- merged_roast[, -1]
+
+merged_fdr <- merge(merge(fdr1, fdr2, by = "row.names"), fdr3, by.x = "Row.names", by.y = "row.names")
+rownames(merged_fdr) <- merged_fdr$Row.names
+merged_fdr <- merged_fdr[, -1]
+
+heatmap_mat <- as.matrix(merged_roast)
+fdr_mat <- as.matrix(merged_fdr[rownames(heatmap_mat), ])
+
+#Remove any rows with NAs explicitly before building annotation matrix
+keep_rows <- complete.cases(heatmap_mat)
+heatmap_mat <- heatmap_mat[keep_rows, ]
+fdr_mat <- fdr_mat[rownames(heatmap_mat), ]
+
+#Build significance annotation matrix
+num_mat_3b <- matrix(
+  paste0(sprintf("%.2f", heatmap_mat),
+         ifelse(fdr_mat < 0.05, " *",
+                ifelse(fdr_mat < 0.09, " .", ""))),
+  nrow = nrow(heatmap_mat),
+  dimnames = dimnames(heatmap_mat)
+)
+
+#Generate the heatmap
+pheatmap(heatmap_mat,
+         color = scico(1000, palette = "vik", alpha = 0.8),
+         breaks = seq(-1, 1, length.out = 1001),
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         fontsize_row = 8,
+         fontsize_col = 10,
+         border_color = NA,
+         display_numbers = num_mat_3b,
+         number_color = "black",
+         filename = "figures/figure_S6_ROAST_heatmap_oocyte_uncorrected_significance.png")
+
+
+

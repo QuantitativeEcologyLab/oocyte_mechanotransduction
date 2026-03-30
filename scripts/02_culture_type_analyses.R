@@ -7,7 +7,6 @@
 # - PCA of gene expression across culture types (Figure 2c)
 # - Volcano plots for each pairwise contrast (Figures 2d-f)
 # - Heatmap of mechanotransduction-related gene expression (Figure 3a-b)
-# - Reactome pathway enrichment visualizations (Figures S4)
 
 # Written by Michael Noonan
 # Last updated: March 25, 2026

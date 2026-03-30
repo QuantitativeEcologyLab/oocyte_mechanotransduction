@@ -70,7 +70,7 @@ Scripts should be run in the following order. Scripts 01 onward source `00_data_
 | `00_data_import.R` | Imports all datasets and defines gene sets used across all analyses |
 | `00_project_functions.R` | Helper functions used across all scripts |
 | `01_in_vivo_vs_in_vitro_oocyte_gene_expression.R` | DEG and ROAST analyses comparing in vivo vs in vitro bovine MII oocytes and blastocysts; generates Figures 1, S1, S2, and S6 |
-| `02_culture_type_analyses.R` | DESeq2 DEG and ROAST analyses across 2D, dynamic, and static culture conditions; generates Figures 2, 3, and S4 |
+| `02_culture_type_analyses.R` | DESeq2 DEG and ROAST analyses across 2D, dynamic, and static culture conditions; generates Figures 2, and 3|
 | `03_blastocyst_embryo_analyses.R` | IVF rate modelling and DEG/ROAST analyses of embryo gene expression; generates Figure 4 |
 | `04_supplementary_figures_4_and_5.R` | Reactome pathway enrichment visualizations; generates Figures S4 and S5 |
 

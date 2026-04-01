@@ -287,8 +287,8 @@ colnames(roast_mat) <- "Dynamic vs 2D"
 #Build number annotation matrix with significance symbols
 num_mat <- matrix(
   paste0(sprintf("%.2f", roast_mat),
-         ifelse(roast_emb_sorted$PValue < 0.05, " *",
-                ifelse(roast_emb_sorted$PValue < 0.09, " .", ""))),
+         ifelse(roast_emb_sorted$PValue.Mixed < 0.05, " *",
+                ifelse(roast_emb_sorted$PValue.Mixed < 0.09, " .", ""))),
   ncol = 1,
   dimnames = list(rownames(roast_mat), colnames(roast_mat))
 )

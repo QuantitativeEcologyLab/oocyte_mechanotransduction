@@ -402,9 +402,9 @@ colnames(r2) <- "Prop_2D_vs_St"
 colnames(r3) <- "Prop_Dyn_vs_St"
 
 #Read FDR.Mixed values for significance annotation
-fdr1 <- read.csv("results/ROAST_Dynvs2D.csv", row.names = 1)["PValue"]
-fdr2 <- read.csv("results/ROAST_2DvsSt.csv", row.names = 1)["PValue"]
-fdr3 <- read.csv("results/ROAST_DynvsSt.csv", row.names = 1)["PValue"]
+fdr1 <- read.csv("results/ROAST_Dynvs2D.csv", row.names = 1)["PValue.Mixed"]
+fdr2 <- read.csv("results/ROAST_2DvsSt.csv", row.names = 1)["PValue.Mixed"]
+fdr3 <- read.csv("results/ROAST_DynvsSt.csv", row.names = 1)["PValue.Mixed"]
 
 colnames(fdr1) <- "FDR_Dyn_vs_2D"
 colnames(fdr2) <- "FDR_2D_vs_St"
